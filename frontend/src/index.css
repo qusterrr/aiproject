@@ -109,3 +109,31 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+textarea {
+  font-size: 20px;
+  box-sizing: border-box;
+  resize: none;
+  overflow: hidden;
+  padding: 10px;
+  border-radius: 15px;
+  min-height: 50px;
+}
+
+.usermessage {
+  border-radius: 15px;
+  align-self: flex-end;
+  background-color: white;
+  width: 70%;
+  padding: 10px;
+  text-align: left;
+}
+
+.aimessage {
+  border-radius: 15px;
+  align-self: flex-start;
+  background-color: white;
+  width: 70%;
+  padding: 10px;
+  text-align: left;
+}
