@@ -127,6 +127,7 @@ textarea {
   width: 70%;
   padding: 10px;
   text-align: left;
+  overflow-wrap: anywhere;
 }
 
 .aimessage {
@@ -136,4 +137,5 @@ textarea {
   width: 70%;
   padding: 10px;
   text-align: left;
+  overflow-wrap: anywhere;
 }

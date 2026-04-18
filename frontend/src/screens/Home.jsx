@@ -14,7 +14,8 @@ export default function Home() {
     ])
     const [isDisabled, setIsDisabled] = useState(false)
 
-    const ref = useRef(null)
+    const textAreaRef = useRef(null)
+    const scrollRef = useRef(null)
 
     const sendMessage = async () => {
         if (!input.trim()) {
@@ -38,7 +39,7 @@ export default function Home() {
         ])
         setInput('')
 
-        await sleep(5000)
+        await sleep(3000)
 
         setMessages(prev => [
             ...prev,
@@ -52,10 +53,15 @@ export default function Home() {
     }
 
     useEffect(() => {
-        const e = ref.current
+        const e = textAreaRef.current
         e.style.height = 'auto'
         e.style.height = e.scrollHeight + 'px'
     }, [input])
+
+    useEffect(() => {
+        const e = scrollRef.current
+        scrollRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [messages])
 
     return (
         <>
@@ -82,6 +88,9 @@ export default function Home() {
                         </p>
                     </div>
                 ))}
+                <div
+                    ref={scrollRef}
+                />
             </div>
             <div
                 style={{
@@ -109,7 +118,7 @@ export default function Home() {
                             width: '100%',
                         }}
                         rows={1}
-                        ref={ref}
+                        ref={textAreaRef}
                         value={input}
                         onChange={(e) => {
                             setInput(e.target.value)
