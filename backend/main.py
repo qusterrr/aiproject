@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
@@ -12,6 +12,7 @@ app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 sessions = {}
+file_contexts = {}
 
 SYSTEM_PROMPTS = {
     "explain": "You are a helpful study assistant. Explain concepts clearly with examples. Be concise.",
@@ -23,14 +24,29 @@ class ChatRequest(BaseModel):
     message: str
     mode: str
 
+@app.post("/upload")
+async def upload(session_id: str, file: UploadFile = File(...)):
+    content = await file.read()
+    text = content.decode("utf-8")
+    sessions.setdefault(session_id, [])
+    file_contexts[session_id] = text
+    return {"message": "File uploaded successfully"}
+
 @app.post("/chat")
 async def chat(req: ChatRequest):
     history = sessions.setdefault(req.session_id, [])
     history.append({"role": "user", "parts": [req.message]})
 
+    base_prompt = SYSTEM_PROMPTS[req.mode]
+    file_text = file_contexts.get(req.session_id)
+    if file_text:
+        system = base_prompt + f"\n\nThe user has uploaded the following study material:\n\n{file_text}"
+    else:
+        system = base_prompt
+
     model = genai.GenerativeModel(
         model_name="gemini-2.5-flash-lite",
-        system_instruction=SYSTEM_PROMPTS[req.mode]
+        system_instruction=system
     )
     chat_session = model.start_chat(history=history[:-1])
     response = chat_session.send_message(req.message)

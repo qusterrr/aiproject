@@ -7,7 +7,7 @@ export default function Home() {
     const [input, setInput] = useState('')
     const [messages, setMessages] = useState([])
     const [isDisabled, setIsDisabled] = useState(false)
-
+    const [uploadedFile, setUploadedFile] = useState(null)
     const ref = useRef(null)
 
     const sendMessage = async () => {
@@ -35,6 +35,25 @@ export default function Home() {
 
     setIsDisabled(false)
 }
+const uploadFile = async (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('session_id', sessionId.current)
+
+    try {
+        const res = await fetch(`http://localhost:8000/upload?session_id=${sessionId.current}`, {
+            method: 'POST',
+            body: formData
+        })
+        const data = await res.json()
+        if (data.message) {
+            setUploadedFile(file.name)
+            setMessages(prev => [...prev, { role: 'ai', content: `✅ File "${file.name}" uploaded! You can now ask me questions about it.` }])
+        }
+    } catch (err) {
+        setMessages(prev => [...prev, { role: 'ai', content: 'Error uploading file.' }])
+    }
+}
 
     useEffect(() => {
         const e = ref.current
@@ -42,9 +61,51 @@ export default function Home() {
         e.style.height = e.scrollHeight + 'px'
     }, [input])
 
+    useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+}, [messages])
+
     return (
         <>
             <h1>Our AI project</h1>
+            <div style={{ display: 'flex', gap: '8px', padding: '8px 0', justifyContent: 'center' }}>
+    <button
+        onClick={() => setMode('explain')}
+        style={{
+            background: mode === 'explain' ? 'var(--accent)' : 'transparent',
+            color: mode === 'explain' ? 'white' : 'var(--text)',
+            border: '1px solid var(--accent)',
+            borderRadius: '8px', padding: '6px 16px', cursor: 'pointer'
+        }}
+        
+    >
+        Explain
+    </button>
+    <button
+        onClick={() => setMode('quiz')}
+        style={{
+            background: mode === 'quiz' ? 'var(--accent)' : 'transparent',
+            color: mode === 'quiz' ? 'white' : 'var(--text)',
+            border: '1px solid var(--accent)',
+            borderRadius: '8px', padding: '6px 16px', cursor: 'pointer'
+        }}
+    >
+        Quiz Me
+    </button>
+            </div>
+            <div style={{ padding: '4px 0 8px', display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+    <label style={{ cursor: 'pointer', color: 'var(--accent)', border: '1px solid var(--accent)', borderRadius: '8px', padding: '6px 16px', fontSize: '14px' }}>
+        {uploadedFile ? `📄 ${uploadedFile}` : '+ Upload .txt file'}
+        <input
+            type="file"
+            accept=".txt"
+            style={{ display: 'none' }}
+            onChange={(e) => {
+                if (e.target.files[0]) uploadFile(e.target.files[0])
+            }}
+        />
+    </label>
+</div>
             <div
                 style={{
                     flex: 1,
@@ -67,6 +128,12 @@ export default function Home() {
                         </p>
                     </div>
                 ))}
+                {isDisabled && (
+    <div className="aimessage">
+        <p style={{ color: 'var(--text)' }}>Thinking...</p>
+    </div>
+)}
+<div ref={bottomRef} />
             </div>
             <div
                 style={{
