@@ -2,6 +2,8 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
+from PyPDF2 import PdfReader
+import io
 import os
 from dotenv import load_dotenv
 
@@ -24,14 +26,22 @@ class ChatRequest(BaseModel):
     message: str
     mode: str
 
+
 @app.post("/upload")
 async def upload(session_id: str, file: UploadFile = File(...)):
     content = await file.read()
-    text = content.decode("utf-8")
+    
+    if file.filename.endswith('.pdf'):
+        pdf = PdfReader(io.BytesIO(content))
+        text = ""
+        for page in pdf.pages:
+            text += page.extract_text()
+    else:
+        text = content.decode("utf-8")
+    
     sessions.setdefault(session_id, [])
     file_contexts[session_id] = text
     return {"message": "File uploaded successfully"}
-
 @app.post("/chat")
 async def chat(req: ChatRequest):
     history = sessions.setdefault(req.session_id, [])

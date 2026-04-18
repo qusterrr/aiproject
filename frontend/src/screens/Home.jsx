@@ -130,7 +130,7 @@ export default function Home() {
             >
                 {messages.map((e, i) => (
                     <div key={i} className={e.role === 'user' ? 'usermessage' : 'aimessage'}>
-                        <p>{e.content}</p>
+                        <p dangerouslySetInnerHTML={{ __html: e.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>') }} />
                     </div>
                 ))}
                 {isDisabled && (
@@ -177,7 +177,7 @@ export default function Home() {
                         {uploadedFile ? '📄' : '📎'}
                         <input
                             type="file"
-                            accept=".txt"
+                            accept=".txt,.pdf"
                             style={{ display: 'none' }}
                             onChange={(e) => {
                                 if (e.target.files[0]) uploadFile(e.target.files[0])
