@@ -29,7 +29,7 @@ async def chat(req: ChatRequest):
     history.append({"role": "user", "parts": [req.message]})
 
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
+        model_name="gemini-2.5-flash-lite",
         system_instruction=SYSTEM_PROMPTS[req.mode]
     )
     chat_session = model.start_chat(history=history[:-1])

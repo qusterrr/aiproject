@@ -1,55 +1,40 @@
 import { useEffect, useRef, useState } from "react"
 
 export default function Home() {
+    const [mode, setMode] = useState('explain')
+    const sessionId = useRef(Math.random().toString(36).slice(2))
+    const bottomRef = useRef(null)
     const [input, setInput] = useState('')
-    const [messages, setMessages] = useState([
-        {
-            role: 'user',
-            content: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nemo temporibus, quasi laboriosam optio officiis corporis ea quisquam? Inventore minus vitae molestiae aliquid, fugit perspiciatis saepe, alias, eum eius voluptatibus asperiores.'
-        },
-        {
-            role: 'ai',
-            content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo quas impedit facilis ex, inventore commodi consectetur fugit eum, placeat accusamus consequatur nostrum deserunt labore eligendi eaque dolorum totam! Quasi, omnis.'
-        }
-    ])
+    const [messages, setMessages] = useState([])
     const [isDisabled, setIsDisabled] = useState(false)
 
     const ref = useRef(null)
 
     const sendMessage = async () => {
-        if (!input.trim()) {
-            return
-        }
+    if (!input.trim()) return
 
-        const sleep = (ms) => (  // fake fetching by setting a timeout
-            new Promise((resolve) => {
-                setTimeout(resolve, ms)
+    setIsDisabled(true)
+    setMessages(prev => [...prev, { role: 'user', content: input.trim() }])
+    setInput('')
+
+    try {
+        const res = await fetch('http://localhost:8000/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                session_id: sessionId.current,
+                message: input.trim(),
+                mode: mode
             })
-        )
-
-        setIsDisabled(true)
-
-        setMessages(prev => [
-            ...prev,
-            {
-                role: 'user',
-                content: input.trim()
-            }
-        ])
-        setInput('')
-
-        await sleep(5000)
-
-        setMessages(prev => [
-            ...prev,
-            {
-                role: 'ai',
-                content: 'I ain\'t reading allat brotato chip lmfao!!! Just go talk to Gemini itself at this point xdddd'
-            }
-        ])
-
-        setIsDisabled(false)
+        })
+        const data = await res.json()
+        setMessages(prev => [...prev, { role: 'ai', content: data.response }])
+    } catch (err) {
+        setMessages(prev => [...prev, { role: 'ai', content: 'Error connecting to backend.' }])
     }
+
+    setIsDisabled(false)
+}
 
     useEffect(() => {
         const e = ref.current
