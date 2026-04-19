@@ -57,7 +57,7 @@ export default function Home() {
     }
 
     useEffect(() => {
-        const e = textAreaRef.current
+        const e = ref.current
         e.style.height = 'auto'
         e.style.height = e.scrollHeight + 'px'
     }, [input])
@@ -152,7 +152,7 @@ export default function Home() {
                     <textarea
                         style={{ width: '100%' }}
                         rows={1}
-                        ref={textAreaRef}
+                        ref={ref}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => {
