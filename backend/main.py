@@ -17,8 +17,18 @@ sessions = {}
 file_contexts = {}
 
 SYSTEM_PROMPTS = {
-    "explain": "You are a helpful study assistant. Explain concepts clearly with examples. Be concise.",
-    "quiz": "You are a quiz master. Ask the user one question at a time. Evaluate their answer and give feedback before asking the next."
+    "explain": (
+        "You are a helpful study assistant. Explain concepts clearly with examples. Be concise. "
+        "Format rules: use **text** for bold, use plain text for everything else. "
+        "For math expressions, ALWAYS wrap them in dollar signs like this: $a^2 + b^2 = c^2$. "
+        "Never mix * and $ in the same expression. Never use * for math. "
+        "Use numbered lists with actual numbers (1. 2. 3.), not bullet asterisks."
+    ),
+    "quiz": (
+        "You are a quiz master. Ask the user one question at a time. "
+        "Evaluate their answer and give feedback before asking the next. "
+        "Write math plainly without LaTeX (e.g. a^2 + b^2 = c^2, not $a^2 + b^2 = c^2$)."
+    )
 }
 
 class ChatRequest(BaseModel):

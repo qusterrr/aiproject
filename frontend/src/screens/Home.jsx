@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
-
+import katex from 'katex'
+import 'katex/dist/katex.min.css'
 export default function Home() {
     const [mode, setMode] = useState('explain')
     const sessionId = useRef(Math.random().toString(36).slice(2))
@@ -10,6 +11,31 @@ export default function Home() {
     const [uploadedFile, setUploadedFile] = useState(null)
     const [darkMode, setDarkMode] = useState(false)
     const ref = useRef(null)
+
+const renderContent = (content) => {
+    const NEWLINE = '\x00NL\x00'
+    let s = content.replace(/\n/g, NEWLINE)
+
+    // Math
+    s = s.replace(/\$([^$]+?)\$/g, (_, expr) => {
+        try {
+            return katex.renderToString(expr.trim(), { throwOnError: false })
+        } catch { return expr }
+    })
+
+    // Bold only (skip italic — Gemini won't use it now)
+    s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+
+    // Clean up any stray asterisks Gemini might still emit
+    s = s.replace(/\*/g, '')
+
+    // Newlines
+    s = s.replace(new RegExp(NEWLINE, 'g'), '<br>')
+
+    return s
+}
+
+    
 
     const sendMessage = async () => {
         if (!input.trim()) return
@@ -36,6 +62,7 @@ export default function Home() {
 
         setIsDisabled(false)
     }
+
 
     const uploadFile = async (file) => {
         const formData = new FormData()
@@ -130,7 +157,7 @@ export default function Home() {
             >
                 {messages.map((e, i) => (
                     <div key={i} className={e.role === 'user' ? 'usermessage' : 'aimessage'}>
-                        <p dangerouslySetInnerHTML={{ __html: e.content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>') }} />
+                        <p dangerouslySetInnerHTML={{ __html: renderContent(e.content) }} />
                     </div>
                 ))}
                 {isDisabled && (
