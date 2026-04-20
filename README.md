@@ -18,6 +18,7 @@ The React frontend sends user messages to the FastAPI backend via HTTP POST. The
 - **python-dotenv** — loads API keys from .env file to keep credentials out of source code
 - **Session-based memory** — conversation history stored in a Python dict keyed by random session ID, giving the AI multi-turn memory without a database
 - **System prompt switching** — Explain and Quiz Me modes use different system prompts to change AI behavior without changing the model or making additional API calls
+- **KaTeX** — renders LaTeX math expressions in the browser, used to display formatted math formulas from Gemini's responses
 
 ## Setup and Running Instructions
 
@@ -67,4 +68,4 @@ Open http://localhost:5173 in your browser.
 - CORS is set to allow all origins (`*`) which is fine for local development but unsafe for production
 
 ## AI Tools Used
-- **Claude (claude.ai)** —  debugging API errors
+- **Claude (claude.ai)** —  debugging API errors, fixing math rendering with kaTeX
